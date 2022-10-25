@@ -11,10 +11,11 @@ btn.addEventListener('click', searcher);
 
 function searcher() {
     query = searchBar.value.toLowerCase()
-    for (let i = 0; i < array.length; i++) {
-        
+    for (let i = 1; i < 2; i++) {
+        fetch('https://yawgoo87.github.io/custom-static-search/articles/'+i)
+            .then((res) => console.log(res));
     }
-    fetch
+    
 }
 
 function createResultElement(){
