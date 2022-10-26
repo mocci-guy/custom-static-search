@@ -13,6 +13,7 @@ let searchResultArray = [];
 
 async function searcher() {
     searchResultArray = [];
+    result.innerHTML = '';
     query = searchBar.value.toLowerCase()
     let articleArray = await getJsonData();
 
@@ -49,7 +50,7 @@ async function searcher() {
     //
     //console.log(searchResultArray.sort((a, b) => a.countOfMatches < b.countOfMatches ? 1 : -1));
     searchResultArray.sort((a, b) => a.countOfMatches < b.countOfMatches ? 1 : -1);
-    console.log(searchResultArray);
+    //console.log(searchResultArray);
     generateDomResult(searchResultArray);
 }
 
@@ -81,12 +82,32 @@ function isValidArticle(text, query){
 }
 
 function createSnippet(text, targetIndex, query){  
-    let slicedText = text.slice(targetIndex-50 < 0 ? 0 : targetIndex-20, targetIndex+20 > text.length ? 0 : targetIndex+50);
+    let slicedText = text.slice(targetIndex-30 < 0 ? 0 : targetIndex-30, targetIndex+50 > text.length ? 0 : targetIndex+50);
     let regex = new RegExp(query, 'g');
     slicedText = slicedText.replace(regex, query.bold());
     return '...' + slicedText.trim() + '...';
 }
 
 function generateDomResult(array){
-    
+    if (array.length > 0){
+        for (let i = 0; i < array.length; i++) {
+            let wrapper = document.createElement("div");
+            let link = document.createElement("a");
+            let snippet = document.createElement("p");
+            wrapper.append(link);
+            wrapper.append(snippet);
+            
+            link.textContent = array[i].title;
+            link.href = array[i].link;
+            snippet.innerHTML = array[i].snippet;
+
+            result.append(wrapper);
+        }        
+    } else {
+        console.log('empty');
+        let message = document.createElement("p");
+        message.innerHTML = 'Совпадений не найдено';
+        result.append(message);
+    }
+
 }
