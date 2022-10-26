@@ -5,29 +5,52 @@ let btn = document.querySelector('input[name="search-btn"]');
 let clearBtn = document.querySelector('input[name="clear-btn"]');
 let result = document.querySelector('.search-result');
 
-
 searchBar.addEventListener('input', searcher);
 clearBtn.addEventListener('click', () => { searchBar.value = '' });
 btn.addEventListener('click', searcher);
 
-
+let searchResultArray = [];
 
 async function searcher() {
+    searchResultArray = [];
     query = searchBar.value.toLowerCase()
-
     let articleArray = await getJsonData();
-    console.log(articleArray);
 
-    for (let i = 1; i < 2; i++) {
-        let url = 'https://yawgoo87.github.io/custom-static-search/articles/'+i;
-        let b;
-        let text
+    for (let i = 0; i < articleArray.length; i++) {
+        try {
+            let url = 'https://yawgoo87.github.io/custom-static-search/articles/'+articleArray[i].filename;
+            let result = await pageRequest(url);
+            let pArray = result.querySelectorAll('p');
+            let text = '';
+            pArray.forEach(element => {
+                text = text + ' ' + element.textContent.toLocaleLowerCase();
+            });
 
-        let result = await pageRequest(url);
-        let pArray = result.querySelectorAll('p')
-        console.log(pArray);
+            let articleMatches = isValidArticle(text, query);
+            let snippetText;
 
-    }  
+            if (articleMatches[1] > 0) {
+                snippetText = createSnippet(text, articleMatches[0], searchBar.value);
+                const searchResultObject = {
+                    link: url,
+                    title: result.title,
+                    snippet: snippetText,
+                    countOfMatches: articleMatches[1]
+                } 
+                searchResultArray.push(searchResultObject);
+                //console.log(searchResultArray);
+            }
+
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    
+    //
+    //console.log(searchResultArray.sort((a, b) => a.countOfMatches < b.countOfMatches ? 1 : -1));
+    searchResultArray.sort((a, b) => a.countOfMatches < b.countOfMatches ? 1 : -1);
+    console.log(searchResultArray);
+    generateDomResult(searchResultArray);
 }
 
 async function pageRequest(url){
@@ -43,4 +66,27 @@ async function getJsonData(){
     const response = await fetch(jsonUrl);
     const json = response.json();
     return json;
+}
+
+function isValidArticle(text, query){
+    let result = [];
+    let regex = new RegExp(query, 'g');
+    let indexOfFirstMatch = text.search(regex)
+    let matchArray = text.match(regex);
+    let count = matchArray === null ? 0 : matchArray.length;
+    //console.log([indexOfFirstMatch, count]);
+    result[0] = indexOfFirstMatch;
+    result[1] = count;
+    return result;
+}
+
+function createSnippet(text, targetIndex, query){  
+    let slicedText = text.slice(targetIndex-50 < 0 ? 0 : targetIndex-20, targetIndex+20 > text.length ? 0 : targetIndex+50);
+    let regex = new RegExp(query, 'g');
+    slicedText = slicedText.replace(regex, query.bold());
+    return '...' + slicedText.trim() + '...';
+}
+
+function generateDomResult(array){
+    
 }
