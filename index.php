@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,7 @@
 
     </div>
 
-
+    <?php include_once "create-json.php"; ?>
     <script src="custom-search.js"></script>
 </body>
 </html>

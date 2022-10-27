@@ -6,7 +6,10 @@ let clearBtn = document.querySelector('input[name="clear-btn"]');
 let result = document.querySelector('.search-result');
 
 searchBar.addEventListener('input', searcher);
-clearBtn.addEventListener('click', () => { searchBar.value = '' });
+clearBtn.addEventListener('click', () => { 
+        searchBar.value = '';
+        result.innerHTML = 'Введите запрос';
+    });
 btn.addEventListener('click', searcher);
 
 let searchResultArray = [];
